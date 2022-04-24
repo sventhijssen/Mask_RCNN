@@ -1,35 +1,28 @@
 import os
 import sys
 import random
-import math
-import re
-import time
 import numpy as np
-import cv2
-import matplotlib
 import matplotlib.pyplot as plt
 
 # Root directory of the project
-from samples.clevr.clevr_colors import CLEVRColorDataset, CLEVRColorConfig
-
-ROOT_DIR = os.path.abspath("../../")
+# from samples.clevr.shapes.clevr_shapes import CLEVRShapeDataset, CLEVRShapeConfig
 
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn.config import Config
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
 from mrcnn.model import log
 
 # Directory to save logs and trained model
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+from samples.clevr.color_shapes.clevr_color_shapes import CLEVRColorShapeConfig, CLEVRColorShapeDataset
+
+MODEL_DIR = os.path.join(os.getcwd(), "logs")
 
 # Directory to load images
-DATA_DIR = os.path.expanduser('~') + "/Documents/ucf/2022-spring/cap6121/clevr-dataset-gen/clevr-dataset-gen/datasets/colors/images/"
+DATA_DIR = os.path.expanduser('~') + "/Documents/ucf/2022-spring/cap6121/clevr-dataset-gen/clevr-dataset-gen/dataset/color_shapes/images/"
 
 # Local path to trained weights file
-COCO_MODEL_PATH = os.path.join(ROOT_DIR, "clevr_color_mask_rcnn_coco.h5")
+COCO_MODEL_PATH = os.path.join(os.getcwd(), "clevr_shape_mask_rcnn_coco.h5")
 # Download COCO trained weights from Releases if needed
 if not os.path.exists(COCO_MODEL_PATH):
     utils.download_trained_weights(COCO_MODEL_PATH)
@@ -47,17 +40,17 @@ def get_ax(rows=1, cols=1, size=8):
     return ax
 
 
-config = CLEVRColorConfig()
+config = CLEVRColorShapeConfig()
 config.display()
 
 # Training dataset
-dataset_train = CLEVRColorDataset()
+dataset_train = CLEVRColorShapeDataset()
 dataset_train.load_dataset(DATA_DIR, is_train=True)
 dataset_train.prepare()
 print("Training: %d" % len(dataset_train.image_ids))
 
 # Validation dataset
-dataset_val = CLEVRColorDataset()
+dataset_val = CLEVRColorShapeDataset()
 dataset_val.load_dataset(DATA_DIR, is_train=False)
 dataset_val.prepare()
 print("Validation: %d" % len(dataset_val.image_ids))
@@ -109,7 +102,7 @@ model.train(dataset_train, dataset_val,
             layers="all")
 
 
-class InferenceConfig(CLEVRColorConfig):
+class InferenceConfig(CLEVRColorShapeConfig):
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
@@ -123,7 +116,7 @@ model = modellib.MaskRCNN(mode="inference",
 
 # Get path to saved weights
 # Either set a specific path or find last trained weights
-# model_path = os.path.join(ROOT_DIR, ".h5 file name here")
+# model_path = os.path.join(os.getcwd(), ".h5 file name here")
 model_path = model.find_last()
 
 # Load trained weights
@@ -132,6 +125,7 @@ model.load_weights(model_path, by_name=True)
 
 # Test on a random image
 image_id = random.choice(dataset_val.image_ids)
+print("Testing image ID: {}".format(image_id))
 original_image, image_meta, gt_class_id, gt_bbox, gt_mask =\
     modellib.load_image_gt(dataset_val, inference_config,
                            image_id, use_mini_mask=False)

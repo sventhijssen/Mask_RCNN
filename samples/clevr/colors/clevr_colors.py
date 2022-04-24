@@ -24,7 +24,7 @@ from cv2 import imread
 from torchvision.io import read_image
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+ROOT_DIR = os.path.abspath("../../../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -98,10 +98,10 @@ class CLEVRColorDataset(utils.Dataset):
             # Image path
             img_path = dataset_dir + filename
 
-            if is_train and int(image_id) >= 90:
+            if is_train and int(image_id) >= 80:
                 continue
 
-            if not is_train and int(image_id) < 90:
+            if not is_train and int(image_id) < 80:
                 continue
 
             self.add_image("colors", image_id=image_id, path=img_path)

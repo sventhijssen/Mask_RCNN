@@ -24,7 +24,7 @@ from cv2 import imread
 from torchvision.io import read_image
 
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
+ROOT_DIR = os.path.abspath("../../../")
 
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
@@ -32,13 +32,13 @@ from mrcnn.config import Config
 from mrcnn import utils
 
 
-class CLEVRShapeConfig(Config):
+class CLEVRColorShapeConfig(Config):
     """Configuration for training on the toy shapes dataset.
     Derives from the base Config class and overrides values specific
     to the toy shapes dataset.
     """
     # Give the configuration a recognizable name
-    NAME = "shapes"
+    NAME = "color_shapes"
 
     # Train on 1 GPU and 8 images per GPU. We can put multiple images on each
     # GPU because the images are small. Batch size is 8 (GPUs * images/GPU).
@@ -46,7 +46,7 @@ class CLEVRShapeConfig(Config):
     IMAGES_PER_GPU = 8
 
     # Number of classes (including background)
-    NUM_CLASSES = 1 + 3  # background + 3 shapes
+    NUM_CLASSES = 1 + 9  # background + 3 shapes * 3 colors
 
     # Use small images for faster training. Set the limits of the small side
     # the large side, and that determines the image shape.
@@ -67,9 +67,9 @@ class CLEVRShapeConfig(Config):
     VALIDATION_STEPS = 5
 
 
-class CLEVRShapeDataset(utils.Dataset):
-    """Generates the shapes synthetic dataset. The dataset consists of simple
-    shapes (triangles, squares, circles) placed randomly on a blank surface.
+class CLEVRColorShapeDataset(utils.Dataset):
+    """Generates the color and shape synthetic dataset. The dataset consists of simple
+    colors (red, blue, green) and shapes (cube, sphere, cylinder) placed randomly on a blank surface.
     The images are generated on the fly. No file access required.
     """
 
@@ -78,9 +78,17 @@ class CLEVRShapeDataset(utils.Dataset):
     def load_dataset(self, dataset_dir, is_train=True):
 
         # Add classes
-        self.add_class("shapes", 1, "cube")
-        self.add_class("shapes", 2, "sphere")
-        self.add_class("shapes", 3, "cylinder")
+        self.add_class("color_shapes", 1, "red_cube")
+        self.add_class("color_shapes", 2, "red_sphere")
+        self.add_class("color_shapes", 3, "red_cylinder")
+
+        self.add_class("color_shapes", 4, "blue_cube")
+        self.add_class("color_shapes", 5, "blue_sphere")
+        self.add_class("color_shapes", 6, "blue_cylinder")
+
+        self.add_class("color_shapes", 7, "green_cube")
+        self.add_class("color_shapes", 8, "green_sphere")
+        self.add_class("color_shapes", 9, "green_cylinder")
 
         # For each image in the dataset
         for filename in listdir(dataset_dir):
@@ -98,13 +106,15 @@ class CLEVRShapeDataset(utils.Dataset):
             # Image path
             img_path = dataset_dir + filename
 
-            if is_train and int(image_id) >= 90:
+            # Skip all images after 100 if we are building the train set
+            if is_train and int(image_id) >= 99:
                 continue
 
-            if not is_train and int(image_id) < 90:
+            # Skip all images before 100 if we are building the test/val set
+            if not is_train and int(image_id) < 99:
                 continue
 
-            self.add_image("shapes", image_id=image_id, path=img_path)
+            self.add_image("color_shapes", image_id=image_id, path=img_path)
 
     def load_mask(self, image_id):
         """Generate instance masks for shapes of the given image ID.
@@ -140,8 +150,8 @@ class CLEVRShapeDataset(utils.Dataset):
             # mask = read_image(mask_path)
             # obj_ids = torch.unique(mask)
             match = re.findall(r'CLEVR_new_%s_%d_mask_(\w+).png' % (str(file_image_id).zfill(6), k), txt_image_filename)
-            shape = match[0]
-            mask_filename = "CLEVR_new_%s_%d_mask_%s.png" % (str(file_image_id).zfill(6), k, shape)
+            classification = match[0]
+            mask_filename = "CLEVR_new_%s_%d_mask_%s.png" % (str(file_image_id).zfill(6), k, classification)
             mask_path = dataset_dir + "/" + mask_filename
             raw_mask = imread(mask_path)
 
@@ -151,14 +161,14 @@ class CLEVRShapeDataset(utils.Dataset):
                         mask[i][j][k] = 1
 
             # We set the class id for the shape i
-            class_ids[k] = self.class_names.index(shape)
+            class_ids[k] = self.class_names.index(classification)
 
         return mask, class_ids.astype(np.int32)
 
     def image_reference(self, image_id):
-        """Return the shapes data of the image."""
+        """Return the color and shape data of the image."""
         info = self.image_info[image_id]
-        if info["source"] == "shapes":
-            return info["shapes"]
+        if info["source"] == "color_shapes":
+            return info["color_shapes"]
         else:
             super(self.__class__).image_reference(self, image_id)

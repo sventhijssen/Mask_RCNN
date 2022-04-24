@@ -1,35 +1,26 @@
 import os
 import sys
 import random
-import math
-import re
-import time
 import numpy as np
-import cv2
-import matplotlib
 import matplotlib.pyplot as plt
 
 # Root directory of the project
-from samples.clevr.clevr_shapes import CLEVRShapeDataset, CLEVRShapeConfig
-
-ROOT_DIR = os.path.abspath("../../")
+from samples.clevr.shapes.clevr_shapes import CLEVRShapeDataset, CLEVRShapeConfig
 
 # Import Mask RCNN
-sys.path.append(ROOT_DIR)  # To find local version of the library
-from mrcnn.config import Config
 from mrcnn import utils
 import mrcnn.model as modellib
 from mrcnn import visualize
 from mrcnn.model import log
 
 # Directory to save logs and trained model
-MODEL_DIR = os.path.join(ROOT_DIR, "logs")
+MODEL_DIR = os.path.join(os.getcwd(), "logs")
 
 # Directory to load images
 DATA_DIR = os.path.expanduser('~') + "/Documents/ucf/2022-spring/cap6121/clevr-dataset-gen/clevr-dataset-gen/datasets/shapes/images/"
 
 # Local path to trained weights file
-COCO_MODEL_PATH = os.path.join(ROOT_DIR, "clevr_shape_mask_rcnn_coco.h5")
+COCO_MODEL_PATH = os.path.join(os.getcwd(), "clevr_shape_mask_rcnn_coco.h5")
 # Download COCO trained weights from Releases if needed
 if not os.path.exists(COCO_MODEL_PATH):
     utils.download_trained_weights(COCO_MODEL_PATH)
@@ -123,7 +114,7 @@ model = modellib.MaskRCNN(mode="inference",
 
 # Get path to saved weights
 # Either set a specific path or find last trained weights
-# model_path = os.path.join(ROOT_DIR, ".h5 file name here")
+# model_path = os.path.join(os.getcwd(), ".h5 file name here")
 model_path = model.find_last()
 
 # Load trained weights
