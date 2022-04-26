@@ -11,18 +11,24 @@ class KnowledgeBase:
         # A dictionary keeps knowledge about each knowledge
         self.knowledge = dict()
 
-    def update(self, feature: str, results: Dict[str, ndarray]):
-        color, shape = feature.split("_")
+    def update(self, results: Dict[str, ndarray]):
         class_ids = results["class_ids"]
         rois = results["rois"]
+        masks = results["masks"]
+
+        class_names = ["", "red_cube", "red_sphere", "red_cylinder",
+         "blue_cube", "blue_sphere", "blue_cylinder",
+         "green_cube", "green_sphere", "green_cylinder"]
 
         nr_objects = len(class_ids)
 
-        class_names = ["cube", "sphere", "cylinder"]
-
         for k in range(nr_objects):
             roi = rois[k]
-            shape = class_ids[k]
+            mask = masks[k]
+            class_id = int(class_ids[k])
+            class_name = class_names[class_id]
+            color_name, shape_name = class_name.split("_")
+
             y0 = roi[0]
             x0 = roi[1]
             y1 = roi[2]
@@ -34,13 +40,12 @@ class KnowledgeBase:
             # We look at y_bottom to reason about "in_front_of"
             y_bottom = min(y0, y1)
 
-            shape_name = class_names[shape - 1]
-
             self.knowledge[k] = dict()
             self.knowledge[k]["x_center"] = x_center
             self.knowledge[k]["y_bottom"] = y_bottom
-            self.knowledge[k]["color"] = color
+            self.knowledge[k]["color"] = color_name
             self.knowledge[k]["shape"] = shape_name
+            self.knowledge[k]["mask"] = mask
 
     def _get_object_ids_by_shape(self, shape: str):
         object_ids = set()
@@ -96,19 +101,20 @@ class KnowledgeBase:
                     remove_object_ids.add(object_id)
         return object_ids - remove_object_ids
 
-    def _object_id_to_pixel_coordinates(self, object_id: int):
-        pass
+    def _object_id_to_mask(self, object_id: int):
+        return self.knowledge[object_id]["mask"]
 
     def reason(self, query: Query):
         action_and_object_ids = []
         for (action, filters) in query.get_filters_by_actions():
             object_sets = []
             for (shape, object_filters) in filters:
+                print("Shape: {}, filters: {}".format(shape, object_filters))
                 object_ids = self._get_object_ids_by_shape(shape)
                 for object_filter in object_filters.keys():
                     if object_filter == "color":
                         object_ids = self._filter_object_ids_by_colors(object_filters[object_filter], object_ids)
-                    object_sets.append(object_ids)
+                        object_sets.append(object_ids)
 
             new_object_sets = []
             for i in range(len(filters)):
@@ -121,12 +127,12 @@ class KnowledgeBase:
 
             action_and_object_ids.append((action, object_ids))
 
-        action_and_pixel_coordinates = []
+        action_and_masks = []
         for (action, object_ids) in action_and_object_ids:
 
-            pixel_coordinates = []
+            masks = []
             for object_id in object_ids:
-                pixel_coordinates.append(self._object_id_to_pixel_coordinates(object_id))
-        return action_and_pixel_coordinates
+                masks.append(self._object_id_to_mask(object_id))
+        return action_and_masks
 
 

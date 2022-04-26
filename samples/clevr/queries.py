@@ -1,4 +1,3 @@
-from samples.clevr.KnowledgeBase import KnowledgeBase
 from samples.clevr.Query import Query
 
 sentences = [
@@ -21,8 +20,6 @@ sentences = [
     "select all green cubes left of the blue cylinder and the red sphere",
     "select all green cubes left of the blue cylinder and right of the red sphere"
 ]
-
-k = KnowledgeBase()
 
 for sentence in sentences:
     query = Query(sentence)

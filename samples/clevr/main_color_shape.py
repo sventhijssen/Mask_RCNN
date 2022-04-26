@@ -39,7 +39,7 @@ color_shape_model.load_weights(color_shape_model_path, by_name=True)
 # print("Loading weights from ", color_model_path)
 # color_model.load_weights(color_model_path, by_name=True)
 
-img = load_img("../images/r0.png")
+img = load_img("../images/0.png")
 color_shape_image = img_to_array(img)
 # color_image = img_to_array(img)
 
@@ -65,12 +65,11 @@ visualize.display_instances(color_shape_image,
 # sentence = "select all green cubes and spheres left of the cylinder"
 # sentence = "select all purple cubes left of the cylinders"
 # sentence = "select the cyan cylinder on the right of the cube"
-sentence = "select the cylinder right of the purple cube and left of the cyan cylinder"
+# sentence = "select the cylinder right of the purple cube and left of the cyan cylinder"
+sentence = "select the green cube right of the blue spheres"
 # sentence = "select all cyan and gray cylinders"
 query = Query(sentence)
 
 knowledge_base = KnowledgeBase()
-knowledge_base.update("", color_shape_result)
-# knowledge_base.update("color", color_image)
-# knowledge_base.update("color", color_result)
-knowledge_base.reason(query)
+knowledge_base.update(color_shape_result)
+masks = knowledge_base.reason(query)
