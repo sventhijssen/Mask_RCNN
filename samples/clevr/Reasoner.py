@@ -70,4 +70,4 @@ class Reasoner:
             for c in cs:
                 centers.append(c)
 
-        return actions_and_centers
+        return centers
