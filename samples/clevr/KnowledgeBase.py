@@ -122,25 +122,28 @@ class KnowledgeBase:
             for (shape, object_filters) in filters:
                 print("Shape: {}, filters: {}".format(shape, object_filters))
                 object_ids = self._get_object_ids_by_shape(shape)
+                has_color_filter = False
                 for object_filter in object_filters.keys():
                     if object_filter == "color":
+                        has_color_filter = True
                         object_ids = self._filter_object_ids_by_colors(object_filters[object_filter], object_ids)
                         object_sets.append(object_ids)
 
-                if len(object_filters) == 0:
+                if not has_color_filter:
                     object_sets.append(object_ids)
-
 
             new_object_sets = []
             for i in range(len(filters)):
                 object_set = object_sets[i]
                 object_filters = filters[i][1]
+                has_relation_filter = False
                 for object_filter in object_filters:
                     if object_filter == "relation":
+                        has_relation_filter = True
                         new_object_ids = self._filter_object_ids_by_relations(object_filters[object_filter], object_set, object_sets)
                         new_object_sets.append(new_object_ids)
 
-                if len(object_filters) == 0:
+                if not has_relation_filter:
                     new_object_sets.append(object_set)
 
             action_and_object_ids.append((action, new_object_sets))

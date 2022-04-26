@@ -44,7 +44,7 @@ img = load_img("../images/0.png")
 color_shape_image = img_to_array(img)
 # color_image = img_to_array(img)
 
-img.show()
+# img.show()
 
 # detecting objects in the image
 color_shape_results = color_shape_model.detect([color_shape_image])
@@ -70,7 +70,7 @@ visualize.display_instances(color_shape_image,
 # sentence = "select the green cube right of the blue spheres"
 # sentence = "select the blue spheres left of the green cube"
 # sentence = "select all cyan and gray cylinders"
-sentence = "select all objects"
+sentence = "select all blue objects"
 # sentence = "select all cylinders"
 query = Query(sentence)
 
