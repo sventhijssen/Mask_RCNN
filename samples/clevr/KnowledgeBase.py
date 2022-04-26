@@ -127,6 +127,10 @@ class KnowledgeBase:
                         object_ids = self._filter_object_ids_by_colors(object_filters[object_filter], object_ids)
                         object_sets.append(object_ids)
 
+                if len(object_filters) == 0:
+                    object_sets.append(object_ids)
+
+
             new_object_sets = []
             for i in range(len(filters)):
                 object_set = object_sets[i]
@@ -135,6 +139,9 @@ class KnowledgeBase:
                     if object_filter == "relation":
                         new_object_ids = self._filter_object_ids_by_relations(object_filters[object_filter], object_set, object_sets)
                         new_object_sets.append(new_object_ids)
+
+                if len(object_filters) == 0:
+                    new_object_sets.append(object_set)
 
             action_and_object_ids.append((action, new_object_sets))
 
@@ -146,5 +153,3 @@ class KnowledgeBase:
                     centers.append(self._object_id_to_center(object_id))
             action_and_centers.append((action, centers))
         return action_and_centers
-
-
