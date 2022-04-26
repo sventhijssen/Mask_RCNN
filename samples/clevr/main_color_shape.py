@@ -7,8 +7,9 @@ from mrcnn import visualize
 from samples.clevr.KnowledgeBase import KnowledgeBase
 from samples.clevr.Query import Query
 from samples.clevr.color_shapes.clevr_color_shapes import CLEVRColorShapeConfig
-from samples.clevr.colors.clevr_colors import CLEVRColorConfig
-from samples.clevr.shapes.clevr_shapes import CLEVRShapeConfig
+
+import tensorflow as tf
+tf.logging.set_verbosity(tf.logging.ERROR)
 
 ROOT_DIR = os.path.abspath("../../")
 
@@ -72,4 +73,5 @@ query = Query(sentence)
 
 knowledge_base = KnowledgeBase()
 knowledge_base.update(color_shape_result)
-masks = knowledge_base.reason(query)
+action_and_masks = knowledge_base.reason(query)
+print(action_and_masks)

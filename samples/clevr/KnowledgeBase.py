@@ -125,14 +125,15 @@ class KnowledgeBase:
                         new_object_ids = self._filter_object_ids_by_relations(object_filters[object_filter], object_set, object_sets)
                         new_object_sets.append(new_object_ids)
 
-            action_and_object_ids.append((action, object_ids))
+            action_and_object_ids.append((action, new_object_sets))
 
         action_and_masks = []
-        for (action, object_ids) in action_and_object_ids:
-
+        for (action, object_sets) in action_and_object_ids:
             masks = []
-            for object_id in object_ids:
-                masks.append(self._object_id_to_mask(object_id))
+            for object_set in object_sets:
+                for object_id in object_set:
+                    masks.append(self._object_id_to_mask(object_id))
+            action_and_masks.append((action, masks))
         return action_and_masks
 
 
