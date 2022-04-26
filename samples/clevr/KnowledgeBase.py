@@ -1,5 +1,6 @@
 from typing import Dict, Set, List
 
+import numpy as np
 from numpy import ndarray
 
 from samples.clevr.Query import Query
@@ -24,7 +25,13 @@ class KnowledgeBase:
 
         for k in range(nr_objects):
             roi = rois[k]
-            mask = masks[k]
+
+            mask = np.zeros((320, 480))
+            for x in range(480):
+                for y in range(320):
+                    mask[y][x] = masks[y][x][k]
+
+            # mask = masks[k]
             class_id = int(class_ids[k])
             class_name = class_names[class_id]
             color_name, shape_name = class_name.split("_")
@@ -40,12 +47,16 @@ class KnowledgeBase:
             # We look at y_bottom to reason about "in_front_of"
             y_bottom = min(y0, y1)
 
+            y_center = min(y0, y1) + abs(y1 - y0) / 2
+
             self.knowledge[k] = dict()
             self.knowledge[k]["x_center"] = x_center
+            self.knowledge[k]["y_center"] = y_center
             self.knowledge[k]["y_bottom"] = y_bottom
             self.knowledge[k]["color"] = color_name
             self.knowledge[k]["shape"] = shape_name
             self.knowledge[k]["mask"] = mask
+            self.knowledge[k]["roi"] = rois[k]
 
     def _get_object_ids_by_shape(self, shape: str):
         object_ids = set()
@@ -101,8 +112,8 @@ class KnowledgeBase:
                     remove_object_ids.add(object_id)
         return object_ids - remove_object_ids
 
-    def _object_id_to_mask(self, object_id: int):
-        return self.knowledge[object_id]["mask"]
+    def _object_id_to_center(self, object_id: int):
+        return self.knowledge[object_id]["x_center"], self.knowledge[object_id]["y_center"]
 
     def reason(self, query: Query):
         action_and_object_ids = []
@@ -127,13 +138,13 @@ class KnowledgeBase:
 
             action_and_object_ids.append((action, new_object_sets))
 
-        action_and_masks = []
+        action_and_centers = []
         for (action, object_sets) in action_and_object_ids:
-            masks = []
+            centers = []
             for object_set in object_sets:
                 for object_id in object_set:
-                    masks.append(self._object_id_to_mask(object_id))
-            action_and_masks.append((action, masks))
-        return action_and_masks
+                    centers.append(self._object_id_to_center(object_id))
+            action_and_centers.append((action, centers))
+        return action_and_centers
 
 

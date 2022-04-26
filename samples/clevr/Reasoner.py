@@ -28,6 +28,7 @@ class Reasoner:
         img = load_img(filepath)
         return img_to_array(img)
 
+
     def reason(self):
         ROOT_DIR = os.path.abspath("../../")
 
@@ -62,6 +63,11 @@ class Reasoner:
 
         knowledge_base = KnowledgeBase()
         knowledge_base.update(color_shape_result)
-        action_and_masks = knowledge_base.reason(query)
+        actions_and_centers = knowledge_base.reason(query)
 
-        return action_and_masks
+        centers = []
+        for (action, cs) in actions_and_centers:
+            for c in cs:
+                centers.append(c)
+
+        return actions_and_centers

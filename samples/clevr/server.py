@@ -49,7 +49,7 @@ class S(BaseHTTPRequestHandler):
         result, message = self.handle_upload()
 
         reasoner = Reasoner()
-        actions_and_masks = reasoner.reason()
+        centers = reasoner.reason()
 
 
         print("7")
