@@ -50,6 +50,12 @@ class S(BaseHTTPRequestHandler):
 
         reasoner = Reasoner()
         centers = reasoner.reason()
+        # centers = [(100, 90), (20, 10)]
+        coordinates = []
+        for i in range(len(centers)):
+            coordinates.append(str(centers[i][0]))
+            coordinates.append(str(centers[i][1]))
+        response = " ".join(coordinates)
 
         print("Centers: {}".format(centers))
 
@@ -65,7 +71,7 @@ class S(BaseHTTPRequestHandler):
         print("10")
         self._set_response()
         print("11")
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
+        self.wfile.write(response.encode('utf-8'))
 
     def handle_upload(self):
         """Handle the file upload."""
