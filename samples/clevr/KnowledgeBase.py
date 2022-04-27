@@ -23,6 +23,8 @@ class KnowledgeBase:
 
         nr_objects = len(class_ids)
 
+        print("Nr objects: {}".format(nr_objects))
+
         for k in range(nr_objects):
             roi = rois[k]
 
@@ -35,6 +37,9 @@ class KnowledgeBase:
             class_id = int(class_ids[k])
             class_name = class_names[class_id]
             color_name, shape_name = class_name.split("_")
+
+            print("Color name: {}".format(color_name))
+            print("Shape name: {}".format(shape_name))
 
             y0 = roi[0]
             x0 = roi[1]

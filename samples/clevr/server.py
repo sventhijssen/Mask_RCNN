@@ -51,6 +51,7 @@ class S(BaseHTTPRequestHandler):
         reasoner = Reasoner()
         centers = reasoner.reason()
 
+        print("Centers: {}".format(centers))
 
         print("7")
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
